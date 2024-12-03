@@ -48,7 +48,10 @@ function App() {
               path="/cart"
               element={<Cart cart={cart} setCart={setCart} />}
             />
-            <Route path="/products" element={<ProductList setCart={setCart} />} />
+            <Route
+              path="/products"
+              element={<ProductList cart={cart} setCart={setCart} />}
+            />
           </>
         )}
         {/* Redirect unknown routes */}

@@ -1,7 +1,6 @@
 import React from 'react';
 import { List, ListItem, ListItemText, IconButton, Typography, Divider, Button, Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useHistory } from 'react-router-dom';
 
 const Cart = ({ cart, setCart }) => {
   const handleRemoveFromCart = (productId) => {
@@ -11,13 +10,18 @@ const Cart = ({ cart, setCart }) => {
 
   const handleQuantityChange = (productId, change) => {
     const updatedCart = cart.map((item) =>
-      item.id === productId ? { ...item, quantity: item.quantity + change } : item
+      item.id === productId
+        ? { ...item, quantity: Math.max(1, item.quantity + change) } // Prevent quantity from going below 1
+        : item
     );
     setCart(updatedCart);
   };
 
   const calculateTotal = () => {
-    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+    return cart.reduce((total, item) => {
+      const price = parseFloat(item.price.replace('$', '')); // Convert price string to a number
+      return total + price * item.quantity;
+    }, 0);
   };
 
   return (
@@ -30,11 +34,14 @@ const Cart = ({ cart, setCart }) => {
           <Typography>No items in the cart</Typography>
         ) : (
           cart.map((item) => (
-            <ListItem key={item.id} secondaryAction={
-              <IconButton edge="end" onClick={() => handleRemoveFromCart(item.id)}>
-                <DeleteIcon />
-              </IconButton>
-            }>
+            <ListItem
+              key={item.id}
+              secondaryAction={
+                <IconButton edge="end" onClick={() => handleRemoveFromCart(item.id)}>
+                  <DeleteIcon />
+                </IconButton>
+              }
+            >
               <ListItemText
                 primary={item.name}
                 secondary={`Price: ${item.price} x ${item.quantity}`}

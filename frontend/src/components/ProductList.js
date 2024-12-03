@@ -18,6 +18,7 @@ import {
   IconButton,
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import Snackbar from '@mui/material/Snackbar';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 const products = [
@@ -63,156 +64,130 @@ const modalStyle = {
   p: 4,
 };
 
-const ProductList = () => {
-  const [cart, setCart] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
-  const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
+const ProductList = ({ cart, setCart }) => {
+    
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [openModal, setOpenModal] = useState(false);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
 
-  const handleAddToCart = (product) => {
-    setCart([...cart, product]);
-    alert('Product added to cart!');
-  };
+    const handleAddToCart = (product) => {
+      const existingProduct = cart.find((item) => item.id === product.id);
+      if (existingProduct) {
+        setCart(
+          cart.map((item) =>
+            item.id === product.id
+              ? { ...item, quantity: (item.quantity || 1) + 1 }
+              : item
+          )
+        );
+      } else {
+        setCart([...cart, { ...product, quantity: 1 }]);
+      }
+      setSnackbarOpen(true); // Show feedback for adding to cart
+    };
 
-  const handleRemoveFromCart = (productId) => {
-    setCart(cart.filter((item) => item.id !== productId));
-  };
+    const handleViewDetails = (product) => {
+      setSelectedProduct(product);
+      setOpenModal(true);
+    };
 
-  const handleViewDetails = (product) => {
-    setSelectedProduct(product);
-    setOpenModal(true);
-  };
+    const handleCloseModal = () => {
+      setOpenModal(false);
+      setSelectedProduct(null);
+    };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
-    setSelectedProduct(null);
-  };
+    const handleSnackbarClose = () => {
+      setSnackbarOpen(false);
+    };
 
-  const toggleCartDrawer = (open) => {
-    setCartDrawerOpen(open);
-  };
+    return (
+      <div style={{ padding: 20 }}>
+        <Typography variant="h4" align="center" gutterBottom>
+          Product Display
+        </Typography>
+        <Grid container spacing={4}>
+          {products.map((product) => (
+            <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+              <Card
+                sx={{
+                  '&:hover': {
+                    boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
+                    transform: 'scale(1.05)',
+                    transition: 'all 0.3s ease-in-out',
+                  },
+                }}
+              >
+                <CardMedia
+                  component="img"
+                  height="150"
+                  image={product.image}
+                  alt={product.name}
+                />
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    {product.name}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" gutterBottom>
+                    {product.description.slice(0, 50)}...
+                  </Typography>
+                  <Typography variant="h6" color="primary">
+                    {product.price}
+                  </Typography>
+                </CardContent>
+                <CardActions>
+                  <Button size="small" color="primary" onClick={() => handleViewDetails(product)}>
+                    View Details
+                  </Button>
+                  <Button
+                    size="small"
+                    color="secondary"
+                    onClick={() => handleAddToCart(product)}
+                    disabled={!!cart.find((item) => item.id === product.id)}
+                  >
+                    {cart.find((item) => item.id === product.id) ? 'In Cart' : 'Add to Cart'}
+                  </Button>
+                </CardActions>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
 
-  return (
-    <div style={{ padding: 20 }}>
-      <Typography variant="h4" align="center" gutterBottom>
-        Product Display
-      </Typography>
-      <Grid container spacing={4}>
-        {products.map((product) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
-            <Card
-              sx={{
-                '&:hover': {
-                  boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
-                  transform: 'scale(1.05)',
-                  transition: 'all 0.3s ease-in-out',
-                },
-              }}
-            >
-              <CardMedia
-                component="img"
-                height="150"
-                image={product.image}
-                alt={product.name}
-              />
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  {product.name}
+        {/* Modal for Product Details */}
+        <Modal open={openModal} onClose={handleCloseModal}>
+          <Box sx={modalStyle}>
+            {selectedProduct && (
+              <>
+                <Typography variant="h5" gutterBottom>
+                  {selectedProduct.name}
                 </Typography>
-                <Typography variant="body2" color="textSecondary" gutterBottom>
-                  {product.description.slice(0, 50)}...
+                <Typography variant="body1" gutterBottom>
+                  {selectedProduct.description}
                 </Typography>
                 <Typography variant="h6" color="primary">
-                  {product.price}
+                  {selectedProduct.price}
                 </Typography>
-              </CardContent>
-              <CardActions>
-                <Button size="small" color="primary" onClick={() => handleViewDetails(product)}>
-                  View Details
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={handleCloseModal}
+                  style={{ marginTop: 20 }}
+                >
+                  Close
                 </Button>
-                <Button size="small" color="secondary" onClick={() => handleAddToCart(product)}>
-                  Add to Cart
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      {/* Modal for Product Details */}
-      <Modal open={openModal} onClose={handleCloseModal}>
-        <Box sx={modalStyle}>
-          {selectedProduct && (
-            <>
-              <Typography variant="h5" gutterBottom>
-                {selectedProduct.name}
-              </Typography>
-              <Typography variant="body1" gutterBottom>
-                {selectedProduct.description}
-              </Typography>
-              <Typography variant="h6" color="primary">
-                {selectedProduct.price}
-              </Typography>
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={handleCloseModal}
-                style={{ marginTop: 20 }}
-              >
-                Close
-              </Button>
-            </>
-          )}
-        </Box>
-      </Modal>
-
-      {/* Floating Cart Icon */}
-      <Badge
-        badgeContent={cart.length}
-        color="secondary"
-        style={{ position: 'fixed', bottom: 20, right: 20 }}
-      >
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => toggleCartDrawer(true)}
-          startIcon={<ShoppingCartIcon />}
-        >
-          View Cart
-        </Button>
-      </Badge>
-
-      {/* Cart Drawer */}
-      <Drawer anchor="right" open={cartDrawerOpen} onClose={() => toggleCartDrawer(false)}>
-        <Box sx={{ width: 300, padding: 2 }}>
-          <Typography variant="h5" gutterBottom>
-            Your Cart
-          </Typography>
-          <Divider />
-          <List>
-            {cart.length > 0 ? (
-              cart.map((item) => (
-                <ListItem key={item.id} secondaryAction={
-                  <IconButton edge="end" onClick={() => handleRemoveFromCart(item.id)}>
-                    <DeleteIcon />
-                  </IconButton>
-                }>
-                    <ListItemText
-                        primary={item.name}
-                        secondary={`Price: ${item.price}`}
-                    />
-                </ListItem>
-              ))
-            ) : (
-              <Typography variant="body1" color="textSecondary">
-                Your cart is empty.
-              </Typography>
+              </>
             )}
-          </List>
-        </Box>
-      </Drawer>
-    </div>
-  );
+          </Box>
+        </Modal>
+
+        {/* Snackbar for Add to Cart Notification */}
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={3000}
+          onClose={handleSnackbarClose}
+          message="Product added to cart!"
+        />
+      </div>
+    );
 };
 
 export default ProductList;
