@@ -7,7 +7,7 @@ const Navbar = ({ isAuthenticated, handleLogout }) => {
     <AppBar position="static">
       <Toolbar>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Ecommerce
+          Fashion Store
         </Typography>
         <Box>
           {isAuthenticated ? (
