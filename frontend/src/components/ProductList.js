@@ -20,37 +20,8 @@ import {
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Snackbar from '@mui/material/Snackbar';
 import DeleteIcon from '@mui/icons-material/Delete';
+import products from './data/Products'; // Import the external data file
 
-const products = [
-  {
-    id: 1,
-    name: 'Product 1',
-    price: '$20.00',
-    description: 'This is a detailed description of Product 1.',
-    image: 'https://via.placeholder.com/150',
-  },
-  {
-    id: 2,
-    name: 'Product 2',
-    price: '$30.00',
-    description: 'This is a detailed description of Product 2.',
-    image: 'https://via.placeholder.com/150',
-  },
-  {
-    id: 3,
-    name: 'Product 3',
-    price: '$40.00',
-    description: 'This is a detailed description of Product 3.',
-    image: 'https://via.placeholder.com/150',
-  },
-  {
-    id: 4,
-    name: 'Product 4',
-    price: '$50.00',
-    description: 'This is a detailed description of Product 4.',
-    image: 'https://via.placeholder.com/150',
-  },
-];
 
 const modalStyle = {
   position: 'absolute',
@@ -122,6 +93,7 @@ const ProductList = ({ cart, setCart }) => {
                   height="150"
                   image={product.image}
                   alt={product.name}
+                  sx={{ objectFit: 'contain' }}
                 />
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
